@@ -36,7 +36,7 @@
 
 1. **Visit the Alibaba Cloud Registration Page:**
 
-   - Go to [Alibaba Cloud Registration](https://www.alibabacloud.com).
+   - Go to [Alibaba Cloud Registration](https://account.alibabacloud.com/register/intl_register.htm).
 
 2. **Click on "Free Account" or "Create an Account":**
 
