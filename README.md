@@ -67,7 +67,7 @@
 
 1. **Log In to the DevCloud:**
 
-   - Go to [Intel DevCloud login page](https://consumer.intel.com/intelcorpb2c.onmicrosoft.com/B2C_1A_UnifiedLogin_SISU_CML_SAML/generic/login?entityId=www.intel.com&ui_locales=en) and sign in with your credentials.
+   - Go to [Intel DevCloud login page](https://consumer.intel.com/intelcorpb2c.onmicrosoft.com/B2C_1A_UnifiedLogin_SISU_CML_SAML/generic/login?entityId=www.intel.com&ui_locales=en) and sign in with your credentials. (first time login might need to add a phone number and verify using SMS)
 
 2. **Access via SSH:**
 
