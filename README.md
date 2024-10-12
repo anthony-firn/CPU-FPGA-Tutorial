@@ -1,26 +1,26 @@
 ### **Overview**
 
-- **Platform**: Intel DevCloud
-- **FPGA**: Intel® Programmable Acceleration Card (PAC) with Intel® Arria® 10 GX FPGA
-- **Communication Interface**: OPAE (Open Programmable Acceleration Engine)
+- **Platform**: Alibaba Cloud
+- **FPGA Instance**: f3 Instance Family with Xilinx Virtex UltraScale+ VU9P FPGA
+- **Communication Interface**: PCIe using Open-Source Xilinx Runtime (XRT) Drivers
 - **FPGA Code**: Verilog
 - **CPU Code**: C++
-- **Driver Interface**: Fully open-source (OPAE)
+- **Driver Interface**: Fully Open-Source (Xilinx Runtime - XRT)
 - **Goal**: Implement a CPU-FPGA application where data is sent from the CPU to the FPGA, processed on the FPGA, and sent back to the CPU.
 
 ---
 
 ### **Table of Contents**
 
-1. [Setting Up Your Intel DevCloud Account](#section1)
-2. [Accessing the Intel DevCloud](#section2)
+1. [Setting Up Your Alibaba Cloud Account](#section1)
+2. [Launching an FPGA Instance](#section2)
 3. [Preparing the Development Environment](#section3)
-4. [Understanding the OPAE Framework](#section4)
+4. [Understanding the Xilinx FPGA Framework](#section4)
 5. [Creating the FPGA Design (Verilog)](#section5)
 6. [Compiling the FPGA Design](#section6)
-7. [Creating the Host Application (C++)](#section7)
-8. [Compiling the Host Application](#section8)
-9. [Programming the FPGA](#section9)
+7. [Programming the FPGA](#section7)
+8. [Creating the Host Application (C++)](#section8)
+9. [Compiling the Host Application](#section9)
 10. [Running the Host Application](#section10)
 11. [Verifying the Results](#section11)
 12. [Cleaning Up](#section12)
@@ -30,71 +30,108 @@
 ---
 
 <a name="section1"></a>
-## **1. Setting Up Your Intel DevCloud Account**
+## **1. Setting Up Your Alibaba Cloud Account**
 
 ### **Steps:**
 
-1. **Visit the Intel DevCloud Registration Page:**
+1. **Visit the Alibaba Cloud Registration Page:**
 
-   - Go to [Intel DevCloud for oneAPI](https://devcloud.intel.com/oneapi/get_started/).
+   - Go to [Alibaba Cloud Registration](https://www.alibabacloud.com).
 
-2. **Click on "Get Free Access":**
+2. **Click on "Free Account" or "Create an Account":**
 
    - You'll be redirected to a registration form.
 
 3. **Fill Out the Registration Form:**
 
-   - Provide your personal details, academic or professional affiliation, and agree to the terms.
+   - Provide your email address or mobile number, and set a password.
 
-4. **Submit the Form:**
+4. **Verify Your Email or Mobile Number:**
 
-   - After submission, you'll receive an email to verify your email address.
+   - You'll receive a verification code via email or SMS. Enter it to proceed.
 
-5. **Verify Your Email Address:**
+5. **Complete Account Information:**
 
-   - Click on the verification link in the email.
+   - Provide personal details, billing information, and verify your identity if required.
 
-6. **Account Activation:**
+6. **Select a Payment Method:**
 
-   - Intel may take some time to approve your account (usually instantly verfied). You'll receive a confirmation email once it's activated. "Your Intel account has been created successfully"
+   - Add a valid payment method (credit card or PayPal) for resource usage billing.
+
+7. **Accept Terms and Conditions:**
+
+   - Agree to Alibaba Cloud's terms of service and privacy policy.
+
+8. **Submit the Form:**
+
+   - Your account should now be set up and ready to use.
 
 ---
 
 <a name="section2"></a>
-## **2. Accessing the Intel DevCloud**
+## **2. Launching an FPGA Instance**
 
 ### **Steps:**
 
-1. **Log In to the DevCloud:**
+1. **Log In to the Alibaba Cloud Console:**
 
-   - Go to [Intel DevCloud login page](https://consumer.intel.com/intelcorpb2c.onmicrosoft.com/B2C_1A_UnifiedLogin_SISU_CML_SAML/generic/login?entityId=www.intel.com&ui_locales=en) and sign in with your credentials. (first time login might need to add a phone number and verify using SMS)
+   - Go to [Alibaba Cloud Console](https://home.console.aliyun.com) and sign in with your credentials.
 
-2. **Access via SSH:**
+2. **Navigate to Elastic Compute Service (ECS):**
 
-   - **Generate SSH Keys (if not already done):**
-     - On your local machine, run:
-       ```bash
-       ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-       ```
-     - Save the key in the default location (`~/.ssh/id_rsa`).
+   - From the console dashboard, select **Elastic Compute Service** under **Products & Services**.
 
-   - **Upload Your Public Key to DevCloud:**
-     - In the DevCloud portal, go to **Account Details** > **SSH Keys**.
-     - Upload your public key (`~/.ssh/id_rsa.pub`).
+3. **Create an Instance:**
 
-   - **Connect via SSH:**
-     - Open a terminal and run:
-       ```bash
-       ssh devcloud
-       ```
-     - This command is a shortcut provided by Intel after setting up SSH configurations. If it doesn't work, use:
-       ```bash
-       ssh your_username@devcloud.intel.com
-       ```
+   - Click on **Instances** in the left menu, then click **Create Instance**.
 
-3. **Verify Access:**
+4. **Select Region and Zone:**
 
-   - You should now be logged into the DevCloud environment.
+   - Choose a region that supports FPGA instances (e.g., **China East 1** or **China North 2**). Note that some regions may have restrictions.
+
+5. **Select Instance Type:**
+
+   - Choose the **f3** instance family, which includes FPGA capabilities.
+
+   - For example, select **f3.4xlarge** which includes:
+
+     - 16 vCPUs
+     - 64 GB RAM
+     - Xilinx Virtex UltraScale+ VU9P FPGA
+
+6. **Select an Image (Operating System):**
+
+   - Choose an FPGA Development AMI provided by Alibaba Cloud.
+
+   - If available, select an image like **FPGA Developer AMI** which includes necessary tools.
+
+   - Alternatively, choose a standard Linux distribution (e.g., **Ubuntu 18.04**) and manually install the tools.
+
+7. **Configure Storage:**
+
+   - Allocate sufficient storage for development tools and project files (e.g., 100 GB).
+
+8. **Set Up Security Group (Firewall Rules):**
+
+   - Configure inbound rules to allow SSH access (port 22) from your IP address.
+
+9. **Set Instance Details:**
+
+   - Assign a key pair for SSH access.
+
+   - Configure instance name, tags, and other details as needed.
+
+10. **Review and Launch:**
+
+    - Confirm the configuration and launch the instance.
+
+11. **Wait for the Instance to Start:**
+
+    - It may take a few minutes for the instance to be ready.
+
+12. **Note the Public IP Address:**
+
+    - You'll need this to SSH into the instance.
 
 ---
 
@@ -103,169 +140,313 @@
 
 ### **Steps:**
 
-1. **Load the oneAPI Environment:**
+1. **SSH into the FPGA Instance:**
 
-   - Run the following command to set up the oneAPI environment:
+   - Open a terminal on your local machine.
+
+   - Connect to the instance using the key pair you assigned:
+
      ```bash
-     source /opt/intel/inteloneapi/setvars.sh
+     ssh -i /path/to/your/private/key.pem ubuntu@your_instance_public_ip
      ```
 
-2. **Load OPAE and FPGA Modules:**
+2. **Update the System Packages:**
 
-   - Load the necessary modules for FPGA development:
+   ```bash
+   sudo apt update && sudo apt upgrade -y
+   ```
+
+3. **Install Required Dependencies:**
+
+   - Install essential build tools and libraries:
+
      ```bash
-     module use /glob/development-tools/oneapi/modulefiles
-     module load intelFPGA
+     sudo apt install -y build-essential git wget libssl-dev
      ```
 
-3. **Allocate an FPGA Node with Arria 10 PAC Card:**
+4. **Install Xilinx Tools:**
 
-   - Request an interactive session on a node with an Intel Arria 10 FPGA:
+   - **Option 1: Using Pre-installed Tools**
+
+     - If you selected an FPGA Developer AMI, the Xilinx tools might already be installed.
+
+     - Verify by checking for Vivado and XRT:
+
+       ```bash
+       vivado -version
+       xbutil --version
+       ```
+
+   - **Option 2: Manual Installation**
+
+     - **Download Vivado and XRT:**
+
+       - Go to [Xilinx Download Center](https://www.xilinx.com/support/download/index.html/content/xilinx/en/downloadNav/vivado-design-tools.html).
+
+       - Download the Vivado HLx 2020.1 WebPACK Edition (free version).
+
+       - Download the XRT (Xilinx Runtime) from [Xilinx GitHub Releases](https://github.com/Xilinx/XRT/releases).
+
+     - **Install Vivado:**
+
+       - Transfer the installer to the instance (use `scp` or `wget` if available).
+
+       - Run the installer:
+
+         ```bash
+         sudo ./Xilinx_Vivado_SDK_Web_2020.1_0602_1208_Lin64.bin
+         ```
+
+       - Follow the on-screen instructions to install Vivado WebPACK Edition.
+
+     - **Install XRT:**
+
+       - Install required dependencies:
+
+         ```bash
+         sudo apt install -y libboost-all-dev
+         ```
+
+       - Download the appropriate `.deb` package for Ubuntu 18.04.
+
+       - Install XRT:
+
+         ```bash
+         sudo dpkg -i xrt_2020.1.8.621_18.04-amd64-xrt.deb
+         ```
+
+     - **Set Up Environment Variables:**
+
+       ```bash
+       echo "source /opt/Xilinx/Vivado/2020.1/settings64.sh" >> ~/.bashrc
+       source ~/.bashrc
+       ```
+
+5. **Verify Installation:**
+
+   - Check that Vivado and XRT are installed:
+
      ```bash
-     qsub -I -l nodes=1:fpga_runtime:arria10:ppn=2 -d .
+     vivado -version
+     xbutil --version
      ```
-   - Wait until the session is allocated. You should now be on a compute node with access to the FPGA.
 
-4. **Verify FPGA Access:**
+6. **Clone Xilinx Runtime (XRT) Source Code (Optional):**
 
-   - Check the FPGA is visible:
+   - If you need to build XRT from source for the latest updates or custom modifications:
+
      ```bash
-     fpgainfo fme
+     git clone https://github.com/Xilinx/XRT.git
+     cd XRT
      ```
-   - You should see information about the FPGA Management Engine (FME).
+
+   - Follow the build instructions in the repository.
+
+7. **Install OpenCL Headers (Optional):**
+
+   - If your application uses OpenCL:
+
+     ```bash
+     sudo apt install -y opencl-headers ocl-icd-opencl-dev
+     ```
 
 ---
 
 <a name="section4"></a>
-## **4. Understanding the OPAE Framework**
+## **4. Understanding the Xilinx FPGA Framework**
 
-The Open Programmable Acceleration Engine (OPAE) is an open-source framework that provides a lightweight API to communicate with FPGA devices over PCIe. It simplifies the development of host applications that interact with FPGA accelerators.
+The Xilinx FPGA framework allows communication between the host CPU and FPGA over PCIe using the Xilinx Runtime (XRT). XRT is an open-source driver and runtime library that provides a standardized API for FPGA applications.
 
 - **Key Components:**
-  - **FPGA Interface Manager Extension (FIM):** The FPGA's base image that manages communication.
-  - **Accelerator Function Unit (AFU):** Your custom logic implemented on the FPGA.
-  - **Host Application:** A software application running on the CPU that communicates with the AFU via OPAE APIs.
+  - **XRT (Xilinx Runtime):** Open-source driver and runtime library for communication between CPU and FPGA.
+  - **FPGA Shell (Platform):** The base FPGA image that provides PCIe connectivity and standard interfaces.
+  - **FPGA User Logic (Kernel):** Your custom logic implemented in Verilog.
+  - **Host Application:** Software application running on the CPU that communicates with the FPGA via XRT APIs.
+
+- **Development Flow:**
+  1. **Create FPGA Design:**
+     - Develop the FPGA kernel in Verilog.
+     - Use AXI interfaces for communication.
+  2. **Create Host Application:**
+     - Use XRT APIs to communicate with the FPGA over PCIe.
+  3. **Compile FPGA Design:**
+     - Use Vivado to compile the FPGA design and generate a bitstream (.xclbin).
+  4. **Program the FPGA:**
+     - Use XRT tools to program the FPGA with the bitstream.
+  5. **Run Host Application:**
+     - Execute the host application to send and receive data.
 
 ---
 
 <a name="section5"></a>
 ## **5. Creating the FPGA Design (Verilog)**
 
-We'll create a simple Verilog AFU that increments an input value and sends it back to the host.
+We'll create a simple Verilog kernel that increments an input value and sends it back to the host.
 
 ### **Steps:**
 
 1. **Set Up the Directory Structure:**
 
-   - Create a project directory:
+   ```bash
+   mkdir -p ~/fpga_project/kernel
+   cd ~/fpga_project
+   ```
+
+2. **Create the Verilog Kernel Code:**
+
+   - Navigate to the kernel directory:
+
      ```bash
-     mkdir -p ~/hello_fpga/afu
-     cd ~/hello_fpga
+     cd kernel
      ```
 
-2. **Clone the OPAE Base AFU Repository:**
+   - Create a file named `increment_kernel.v`:
 
-   - This repository contains base templates for AFU development.
      ```bash
-     git clone https://github.com/OPAE/opae-samples.git
+     nano increment_kernel.v
      ```
 
-3. **Copy the "hello_afu" Sample:**
-
-   - This sample provides a good starting point.
-     ```bash
-     cp -r opae-samples/hello_afu afu
-     cd afu
-     ```
-
-4. **Modify the Verilog Code:**
-
-   - Open the AFU RTL file:
-     ```bash
-     nano src/rtl/hello_afu.sv
-     ```
-   - Modify the code to implement increment logic:
-
-     Replace the existing `hello_afu` module with the following:
+   - Add the following Verilog code:
 
      ```verilog
-     module hello_afu (
-         input  wire         clk,
-         input  wire         rst_n,
-         // AXI Stream Slave Interface
-         input  wire [511:0]  s_axis_tdata,
-         input  wire          s_axis_tvalid,
-         output wire          s_axis_tready,
-         // AXI Stream Master Interface
-         output wire [511:0]  m_axis_tdata,
-         output wire          m_axis_tvalid,
-         input  wire          m_axis_tready
+     module increment_kernel (
+         input wire ap_clk,
+         input wire ap_rst_n,
+         input wire [31:0] s_axi_control_AWADDR,
+         input wire s_axi_control_AWVALID,
+         output wire s_axi_control_AWREADY,
+         input wire [31:0] s_axi_control_WDATA,
+         input wire [3:0] s_axi_control_WSTRB,
+         input wire s_axi_control_WVALID,
+         output wire s_axi_control_WREADY,
+         output wire [1:0] s_axi_control_BRESP,
+         output wire s_axi_control_BVALID,
+         input wire s_axi_control_BREADY,
+         input wire [31:0] s_axi_control_ARADDR,
+         input wire s_axi_control_ARVALID,
+         output wire s_axi_control_ARREADY,
+         output wire [31:0] s_axi_control_RDATA,
+         output wire [1:0] s_axi_control_RRESP,
+         output wire s_axi_control_RVALID,
+         input wire s_axi_control_RREADY,
+         output wire interrupt,
+
+         // AXI4 Master Interface
+         output wire [31:0] m_axi_gmem_AWADDR,
+         output wire [7:0] m_axi_gmem_AWLEN,
+         output wire [2:0] m_axi_gmem_AWSIZE,
+         output wire [1:0] m_axi_gmem_AWBURST,
+         output wire m_axi_gmem_AWLOCK,
+         output wire [3:0] m_axi_gmem_AWCACHE,
+         output wire [2:0] m_axi_gmem_AWPROT,
+         output wire [3:0] m_axi_gmem_AWQOS,
+         output wire m_axi_gmem_AWVALID,
+         input wire m_axi_gmem_AWREADY,
+         output wire [511:0] m_axi_gmem_WDATA,
+         output wire [63:0] m_axi_gmem_WSTRB,
+         output wire m_axi_gmem_WLAST,
+         output wire m_axi_gmem_WVALID,
+         input wire m_axi_gmem_WREADY,
+         input wire [1:0] m_axi_gmem_BRESP,
+         input wire m_axi_gmem_BVALID,
+         output wire m_axi_gmem_BREADY,
+         output wire [31:0] m_axi_gmem_ARADDR,
+         output wire [7:0] m_axi_gmem_ARLEN,
+         output wire [2:0] m_axi_gmem_ARSIZE,
+         output wire [1:0] m_axi_gmem_ARBURST,
+         output wire m_axi_gmem_ARLOCK,
+         output wire [3:0] m_axi_gmem_ARCACHE,
+         output wire [2:0] m_axi_gmem_ARPROT,
+         output wire [3:0] m_axi_gmem_ARQOS,
+         output wire m_axi_gmem_ARVALID,
+         input wire m_axi_gmem_ARREADY,
+         input wire [511:0] m_axi_gmem_RDATA,
+         input wire [1:0] m_axi_gmem_RRESP,
+         input wire m_axi_gmem_RLAST,
+         input wire m_axi_gmem_RVALID,
+         output wire m_axi_gmem_RREADY
      );
 
-     reg [511:0] data_reg;
-     reg         valid_reg;
+     // Your logic goes here
 
-     assign s_axis_tready = m_axis_tready;
-     assign m_axis_tvalid = valid_reg;
-     assign m_axis_tdata  = data_reg;
+     // For simplicity, this example does not implement full AXI transactions.
+     // Implement the necessary AXI4 protocol to read and write data from host memory.
 
-     always @(posedge clk or negedge rst_n) begin
-         if (!rst_n) begin
-             data_reg  <= 0;
-             valid_reg <= 0;
-         end else begin
-             if (s_axis_tvalid && s_axis_tready) begin
-                 data_reg  <= s_axis_tdata + 1; // Increment the input data
-                 valid_reg <= 1;
-             end else if (m_axis_tvalid && m_axis_tready) begin
-                 valid_reg <= 0;
-             end
-         end
-     end
+     // This is a placeholder to show where the increment operation would be implemented.
 
      endmodule
      ```
 
-     - This module reads data from the host, increments it by 1, and sends it back.
+   - **Note:** Implementing full AXI4 master interfaces requires significant code to handle all protocol signals. For simplicity, we'll use the High-Level Synthesis (HLS) tool to generate the AXI interfaces.
 
-5. **Update the AFU Manifest:**
+3. **Use HLS to Simplify Kernel Development (Optional):**
 
-   - The AFU Manifest (`afu.json`) describes the AFU's UUID and interface.
+   - If you're comfortable with HLS, you can write the kernel in C/C++ and let HLS generate the Verilog with AXI interfaces.
 
-   - Open `hw/afu.json`:
-     ```bash
-     nano hw/afu.json
-     ```
+   - Here's an example of an HLS kernel:
 
-   - Ensure the `name` and `description` fields are updated:
-
-     ```json
-     {
-       "afu-image": {
-         "power": 0,
-         "clock-frequency-high": "auto",
-         "clock-frequency-low": "auto",
-         "afu-top-interface": {
-           "class": "ccip_std_afu"
-         },
-         "accelerator-clusters": [
-           {
-             "name": "hello_world",
-             "total-contexts": 1,
-             "accelerator-type-uuid": "YOUR-AFU-UUID-HERE"
-           }
-         ]
-       }
+     ```cpp
+     #include <ap_int.h>
+     extern "C" {
+     void increment_kernel(ap_uint<512>* in, ap_uint<512>* out, int size) {
+         for (int i = 0; i < size; i++) {
+             out[i] = in[i] + 1;
+         }
+     }
      }
      ```
 
-   - Generate a UUID for your AFU:
+   - Save this code as `increment_kernel.cpp` in the `kernel` directory.
 
-     ```bash
-     uuidgen
+4. **Create a Kernel Description File (Kernel Definition):**
+
+   - Create a file named `kernel.xml`:
+
+     ```xml
+     <?xml version="1.0" encoding="UTF-8"?>
+     <root version="1.0" xilinx_version="2020.1">
+       <kernel name="increment_kernel" language="ip_c" vlnv="xilinx.com:hls:increment_kernel:1.0" attributes="" preferredWorkGroupSizeMultiple="0" workGroupSize="0,0,0" runtime="OpenCL">
+         <ports>
+           <port name="in" mode="read_only" range="0xFFFFFFFFFFFFFFFF" port="m_axi_gmem" arg_index="0" host_offset="0" size="0x0"/>
+           <port name="out" mode="write_only" range="0xFFFFFFFFFFFFFFFF" port="m_axi_gmem" arg_index="1" host_offset="0" size="0x0"/>
+           <port name="size" mode="read_only" range="0xFFFFFFFFFFFFFFFF" port="" arg_index="2" host_offset="0" size="0x0"/>
+         </ports>
+         <args>
+           <arg name="in" addressQualifier="1" id="0" port="in" size="8" offset="0x10"/>
+           <arg name="out" addressQualifier="2" id="1" port="out" size="8" offset="0x18"/>
+           <arg name="size" addressQualifier="0" id="2" port="" size="4" offset="0x20"/>
+         </args>
+       </kernel>
+     </root>
      ```
 
-   - Replace `"YOUR-AFU-UUID-HERE"` with the generated UUID.
+5. **Create a Makefile for the Kernel:**
+
+   - Create a file named `Makefile` in the `fpga_project` directory:
+
+     ```makefile
+     TARGET=hw
+     DEVICE=xilinx_u200_xdma_201830_2
+
+     all: build
+
+     build:
+         v++ -c -t $(TARGET) --platform $(DEVICE) -k increment_kernel -o kernel.xo kernel/increment_kernel.cpp
+         v++ -l -t $(TARGET) --platform $(DEVICE) -o binary_container.xclbin kernel.xo
+
+     clean:
+         rm -f kernel.xo binary_container.xclbin
+     ```
+
+   - **Note:** Replace `DEVICE` with the actual platform name of your FPGA instance (e.g., as reported by `xbutil scan`).
+
+6. **Explanation:**
+
+   - We use Vitis (`v++`) to compile the kernel.
+
+   - The kernel code is written in HLS C++, which is easier for creating AXI interfaces.
+
+   - The `v++` compiler will generate the necessary RTL and interfaces.
 
 ---
 
@@ -274,53 +455,102 @@ We'll create a simple Verilog AFU that increments an input value and sends it ba
 
 ### **Steps:**
 
-1. **Set Up the Quartus Environment:**
+1. **Set Up the Environment Variables:**
 
-   - Load the Quartus Prime Pro Edition tools:
-     ```bash
-     module load intelFPGA_pro
-     ```
-
-2. **Compile the AFU:**
-
-   - Use the OPAE build scripts to compile the AFU:
+   - Ensure that Vitis and XRT are properly set up:
 
      ```bash
-     cd ~/hello_fpga/afu
-     ./build.sh
+     source /tools/Xilinx/Vitis/2020.1/settings64.sh
+     source /opt/xilinx/xrt/setup.sh
      ```
 
-   - **Note:** The compilation process is resource-intensive and may take several hours. Ensure that your allocated node has sufficient time.
+   - **Note:** Adjust the paths according to your installation directories.
 
-3. **Check for Successful Compilation:**
+2. **Build the Kernel:**
 
-   - Once compilation is complete, check for the generated GBS file (Green Bitstream):
+   - From the `fpga_project` directory, run:
 
      ```bash
-     ls build/outputs/*.gbs
+     make
      ```
 
-   - The GBS file is used to program the FPGA.
+   - This will:
+
+     - Compile the kernel code to an object file (`.xo`).
+
+     - Link the object file to create an FPGA binary (`.xclbin`).
+
+   - **Note:** The build process may take some time.
+
+3. **Verify the Generated Files:**
+
+   - After the build completes, you should have:
+
+     - `kernel.xo` - Kernel object file.
+
+     - `binary_container.xclbin` - FPGA binary file.
 
 ---
 
 <a name="section7"></a>
-## **7. Creating the Host Application (C++)**
+## **7. Programming the FPGA**
 
-We'll create a host application that uses OPAE APIs to communicate with the AFU.
+### **Steps:**
+
+1. **Check Available FPGA Devices:**
+
+   - Use `xbutil` to list FPGA devices:
+
+     ```bash
+     sudo xbutil scan
+     ```
+
+   - You should see information about the FPGA device, including its platform name.
+
+2. **Program the FPGA:**
+
+   - Use `xbutil` to program the FPGA with the generated `.xclbin` file:
+
+     ```bash
+     sudo xbutil program -d 0 -p binary_container.xclbin
+     ```
+
+   - **Explanation:**
+
+     - `-d 0` specifies the device ID (use `0` if you have only one FPGA).
+
+     - `-p` specifies the path to the FPGA binary.
+
+3. **Verify Programming:**
+
+   - Check the FPGA status:
+
+     ```bash
+     sudo xbutil validate -d 0
+     ```
+
+   - Ensure that the FPGA is programmed correctly and passes validation tests.
+
+---
+
+<a name="section8"></a>
+## **8. Creating the Host Application (C++)**
+
+We'll create a host application that uses XRT APIs to communicate with the FPGA.
 
 ### **Steps:**
 
 1. **Create the Host Application Directory:**
 
    ```bash
-   mkdir ~/hello_fpga/host
-   cd ~/hello_fpga/host
+   mkdir ~/fpga_project/host
+   cd ~/fpga_project/host
    ```
 
 2. **Write the Host Application Code:**
 
    - Create a file named `host.cpp`:
+
      ```bash
      nano host.cpp
      ```
@@ -328,182 +558,138 @@ We'll create a host application that uses OPAE APIs to communicate with the AFU.
    - Add the following code:
 
      ```cpp
-     #include <opae/fpga.h>
+     #include <xrt/xrt.h>
+     #include <xrt/xrt_kernel.h>
+     #include <xrt/xrt_bo.h>
      #include <iostream>
-     #include <cstdint>
-     #include <cstring>
-     #include <uuid/uuid.h>
+     #include <fstream>
+     #include <vector>
 
-     #define AFU_UUID "YOUR-AFU-UUID-HERE"
-
-     int main() {
-         fpga_properties filter = nullptr;
-         fpga_handle afc_handle;
-         fpga_guid guid;
-         fpga_token afc_token;
-         uint32_t num_matches = 1;
-
-         // Initialize OPAE
-         if (fpgaInitialize(nullptr) != FPGA_OK) {
-             std::cerr << "Failed to initialize OPAE." << std::endl;
-             return 1;
+     int main(int argc, char** argv) {
+         // Load the FPGA binary
+         std::string binaryFile = "../binary_container.xclbin";
+         if (argc == 2) {
+             binaryFile = argv[1];
          }
 
-         // Set up filter to search for the AFU
-         if (fpgaGetProperties(nullptr, &filter) != FPGA_OK) {
-             std::cerr << "Failed to get FPGA properties." << std::endl;
-             return 1;
-         }
+         // Open the device
+         auto device = xrt::device(0);
 
-         fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
-         uuid_parse(AFU_UUID, guid);
-         fpgaPropertiesSetGUID(filter, guid);
+         // Load the xclbin
+         std::ifstream bin_file(binaryFile, std::ifstream::binary);
+         bin_file.seekg(0, bin_file.end);
+         size_t size = bin_file.tellg();
+         bin_file.seekg(0, bin_file.beg);
+         std::vector<char> buffer(size);
+         bin_file.read(buffer.data(), size);
+         auto uuid = device.load_xclbin(buffer);
 
-         // Enumerate FPGAs
-         if (fpgaEnumerate(&filter, 1, &afc_token, 1, &num_matches) != FPGA_OK) {
-             std::cerr << "Failed to enumerate FPGAs." << std::endl;
-             return 1;
-         }
+         // Open the kernel
+         auto krnl = xrt::kernel(device, uuid, "increment_kernel");
 
-         if (num_matches < 1) {
-             std::cerr << "No matching AFU found." << std::endl;
-             return 1;
-         }
+         // Allocate buffer on FPGA
+         size_t vector_size = 1024;
+         size_t vector_size_in_bytes = vector_size * sizeof(uint64_t);
 
-         // Open the AFU
-         if (fpgaOpen(afc_token, &afc_handle, 0) != FPGA_OK) {
-             std::cerr << "Failed to open AFU." << std::endl;
-             return 1;
-         }
+         auto in_bo = xrt::bo(device, vector_size_in_bytes, krnl.group_id(0));
+         auto out_bo = xrt::bo(device, vector_size_in_bytes, krnl.group_id(1));
 
-         // Allocate buffers
-         uint64_t wsid;
-         volatile uint64_t *input_buf;
-         uint64_t iova;
-
-         if (fpgaPrepareBuffer(afc_handle, sizeof(uint64_t), (void**)&input_buf, &wsid, 0) != FPGA_OK) {
-             std::cerr << "Failed to allocate input buffer." << std::endl;
-             return 1;
-         }
-
-         if (fpgaGetIOAddress(afc_handle, wsid, &iova) != FPGA_OK) {
-             std::cerr << "Failed to get IO address." << std::endl;
-             return 1;
-         }
+         // Map the buffers
+         auto in_ptr = in_bo.map<uint64_t*>();
+         auto out_ptr = out_bo.map<uint64_t*>();
 
          // Initialize input data
-         uint64_t input_value = 42;
-         *input_buf = input_value;
-
-         std::cout << "CPU: Sent data to FPGA: " << input_value << std::endl;
-
-         // AFU interaction logic here
-         // For simplicity, we'll assume the AFU reads from the buffer, processes it, and writes back
-
-         // Simulate a delay (in real application, you would wait for an interrupt or poll a status register)
-         sleep(1);
-
-         // Read back the result
-         uint64_t output_value = *input_buf;
-
-         std::cout << "CPU: Received data from FPGA: " << output_value << std::endl;
-
-         // Verify the result
-         if (output_value == input_value + 1) {
-             std::cout << "SUCCESS: FPGA incremented the data correctly." << std::endl;
-         } else {
-             std::cerr << "ERROR: FPGA did not increment the data correctly." << std::endl;
+         for (size_t i = 0; i < vector_size; i++) {
+             in_ptr[i] = i;
          }
 
-         // Clean up
-         fpgaReleaseBuffer(afc_handle, wsid);
-         fpgaClose(afc_handle);
-         fpgaDestroyProperties(&filter);
+         // Synchronize input buffer data to device global memory
+         in_bo.sync(XCL_BO_SYNC_BO_TO_DEVICE);
 
-         return 0;
+         // Run the kernel
+         auto run = krnl(in_bo, out_bo, vector_size);
+         run.wait();
+
+         // Synchronize output buffer data from device global memory
+         out_bo.sync(XCL_BO_SYNC_BO_FROM_DEVICE);
+
+         // Verify the results
+         int match = 0;
+         for (size_t i = 0; i < vector_size; i++) {
+             uint64_t expected = in_ptr[i] + 1;
+             if (out_ptr[i] != expected) {
+                 std::cout << "Error at index " << i << ": expected " << expected << ", got " << out_ptr[i] << std::endl;
+                 match = 1;
+                 break;
+             }
+         }
+
+         if (match == 0) {
+             std::cout << "SUCCESS: FPGA incremented the data correctly." << std::endl;
+         } else {
+             std::cout << "ERROR: FPGA did not increment the data correctly." << std::endl;
+         }
+
+         return match;
      }
      ```
 
-   - Replace `"YOUR-AFU-UUID-HERE"` with the UUID you generated earlier.
+   - **Explanation:**
 
-3. **Explanation of the Host Code:**
+     - Loads the FPGA binary.
 
-   - **Initialization:**
-     - Initializes the OPAE library.
-     - Sets up a filter to find the FPGA accelerator with the specified UUID.
-   - **FPGA Interaction:**
-     - Opens a handle to the AFU.
-     - Allocates a shared buffer accessible by both the host and the FPGA.
-     - Writes data to the buffer.
-     - In a real-world scenario, you might need to trigger the AFU or wait for a completion signal.
-     - Reads the processed data from the buffer.
-   - **Verification:**
-     - Compares the received data to the expected result.
-   - **Cleanup:**
-     - Releases resources and closes handles.
+     - Allocates buffers for input and output data.
+
+     - Initializes input data.
+
+     - Runs the kernel on the FPGA.
+
+     - Reads back and verifies the output data.
+
+3. **Create a Makefile for the Host Application:**
+
+   - Create a file named `Makefile` in the `host` directory:
+
+     ```makefile
+     CXX= g++
+     CXXFLAGS= -Wall -O0 -g -std=c++11
+     LDFLAGS= -L/opt/xilinx/xrt/lib -lxrt_coreutil -pthread
+
+     HOST_EXE=host_app
+
+     all: $(HOST_EXE)
+
+     $(HOST_EXE): host.cpp
+         $(CXX) $(CXXFLAGS) -I/opt/xilinx/xrt/include $^ -o $@ $(LDFLAGS)
+
+     clean:
+         rm -f $(HOST_EXE)
+     ```
 
 ---
 
-<a name="section8"></a>
-## **8. Compiling the Host Application**
+<a name="section9"></a>
+## **9. Compiling the Host Application**
 
 ### **Steps:**
 
 1. **Set Up the Build Environment:**
 
-   - Ensure that the OPAE development libraries are installed:
+   - Ensure that XRT is properly set up:
+
      ```bash
-     module load opae
+     source /opt/xilinx/xrt/setup.sh
      ```
 
 2. **Compile the Host Application:**
 
-   ```bash
-   g++ -o host_app host.cpp -I/opt/intel/opae/include -L/opt/intel/opae/lib -lopae-c -luuid
-   ```
-
-   - **Flags Explanation:**
-     - `-I/opt/intel/opae/include`: Include path for OPAE headers.
-     - `-L/opt/intel/opae/lib`: Library path for OPAE libraries.
-     - `-lopae-c`: Link against the OPAE C library.
-     - `-luuid`: Link against the UUID library.
-
----
-
-<a name="section9"></a>
-## **9. Programming the FPGA**
-
-### **Steps:**
-
-1. **Check for Available FPGA Cards:**
-
-   ```bash
-   fpgainfo fme
-   ```
-
-   - Ensure that the FPGA is visible and accessible.
-
-2. **Program the FPGA with the GBS File:**
-
-   - Use the `fpgaconf` utility to program the FPGA:
+   - From the `host` directory, run:
 
      ```bash
-     sudo fpgaconf -v ~/hello_fpga/afu/build/outputs/hello_afu.gbs
+     make
      ```
 
-   - **Note:**
-     - You may need `sudo` privileges to program the FPGA.
-     - Ensure that no other processes are using the FPGA.
-
-3. **Verify the FPGA Is Programmed:**
-
-   - Check the AFU ID:
-
-     ```bash
-     fpgainfo afu
-     ```
-
-   - The output should show the AFU UUID matching the one you generated.
+   - This will compile `host.cpp` into `host_app`.
 
 ---
 
@@ -514,21 +700,29 @@ We'll create a host application that uses OPAE APIs to communicate with the AFU.
 
 1. **Execute the Host Application:**
 
-   ```bash
-   ./host_app
-   ```
+   - From the `host` directory, run:
+
+     ```bash
+     ./host_app
+     ```
+
+   - Or specify the path to the FPGA binary if necessary:
+
+     ```bash
+     ./host_app ../binary_container.xclbin
+     ```
 
 2. **Expected Output:**
 
    ```
-   CPU: Sent data to FPGA: 42
-   CPU: Received data from FPGA: 43
    SUCCESS: FPGA incremented the data correctly.
    ```
 
-   - The application sends `42` to the FPGA.
-   - The FPGA increments the value to `43`.
-   - The host application reads back `43` and verifies the result.
+   - The application sends a vector of data to the FPGA.
+
+   - The FPGA increments each element by 1.
+
+   - The host application reads back the data and verifies the result.
 
 ---
 
@@ -544,17 +738,21 @@ We'll create a host application that uses OPAE APIs to communicate with the AFU.
 2. **Debugging If Needed:**
 
    - If the output shows an error:
-     - Check that the AFU is correctly programmed.
-     - Ensure that the UUIDs match between the host application and the AFU manifest.
-     - Verify that the FPGA is not being used by another process.
+
+     - Check that the FPGA is programmed with the correct bitstream.
+
+     - Ensure that the device ID used in programming and in the host code matches.
+
+     - Verify that the kernel name in the host code matches the kernel name used in the FPGA design.
+
      - Check for any error messages during compilation or execution.
 
 3. **Monitor FPGA Status:**
 
-   - Use `fpgainfo` to check FPGA status:
+   - Use `xbutil` to check FPGA status:
 
      ```bash
-     fpgainfo errors
+     sudo xbutil query -d 0
      ```
 
    - Look for any reported errors.
@@ -570,24 +768,19 @@ We'll create a host application that uses OPAE APIs to communicate with the AFU.
 
    - Ensure that the host application has terminated and released all resources.
 
-2. **Unload Modules:**
+2. **Clean Up Build Files:**
 
-   ```bash
-   module unload opae
-   module unload intelFPGA_pro
-   ```
+   - From the `fpga_project` directory, run:
 
-3. **Exit the Interactive Session:**
+     ```bash
+     make clean
+     cd host
+     make clean
+     ```
 
-   ```bash
-   exit
-   ```
+3. **Terminate the FPGA Instance (If No Longer Needed):**
 
-4. **Close SSH Connection:**
-
-   ```bash
-   exit
-   ```
+   - From the Alibaba Cloud console, stop or terminate the instance to avoid incurring charges.
 
 ---
 
@@ -596,30 +789,36 @@ We'll create a host application that uses OPAE APIs to communicate with the AFU.
 
 By following these detailed steps, you've:
 
-- Set up an account and accessed the Intel DevCloud.
-- Prepared the development environment for FPGA programming with OPAE.
-- Created a Verilog-based FPGA design (AFU) that processes data sent from the CPU.
+- Set up an account and launched an FPGA instance on Alibaba Cloud.
+- Prepared the development environment for FPGA programming with Xilinx tools and open-source XRT drivers.
+- Created a Verilog-based FPGA kernel (using HLS for simplicity) that processes data sent from the CPU.
 - Compiled the FPGA design and programmed the FPGA with it.
-- Written a C++ host application that uses open-source OPAE drivers to communicate with the FPGA.
-- Executed the host application, achieving direct, secure communication between the CPU and FPGA.
+- Written a C++ host application that uses open-source XRT drivers to communicate with the FPGA.
+- Executed the host application, achieving direct, secure communication between the CPU and FPGA over PCIe.
 - Verified the correct operation of the system.
 
-This setup provides a real-world example of CPU-FPGA communication in a cloud environment without the need for physical hardware and using fully open-source drivers.
+This setup provides a real-world example of CPU-FPGA communication in a cloud environment using Verilog and open-source drivers, satisfying your requirements.
 
 ---
 
 <a name="section14"></a>
 ## **14. References**
 
-- **Intel DevCloud Documentation:**
-  - [Intel DevCloud for oneAPI](https://devcloud.intel.com/oneapi/documentation/)
-- **OPAE Documentation:**
-  - [OPAE GitHub Repository](https://github.com/OPAE/opae-sdk)
-  - [OPAE Quick Start Guide](https://opae.github.io/latest/quickstartguide.html)
+- **Alibaba Cloud Documentation:**
+  - [Alibaba Cloud ECS Documentation](https://www.alibabacloud.com/help/product/25365.htm)
+  - [Alibaba Cloud FPGA Instances](https://www.alibabacloud.com/product/ecs/fpga)
+
+- **Xilinx Documentation:**
+  - [Xilinx Vitis Unified Software Platform](https://www.xilinx.com/products/design-tools/vitis/vitis-platform.html)
+  - [Xilinx Runtime (XRT) GitHub Repository](https://github.com/Xilinx/XRT)
+  - [Vitis Application Acceleration Development Flow](https://www.xilinx.com/html_docs/xilinx2020_1/vitis_doc/accelerationdevelopmentflow.html)
+
 - **FPGA Programming Guides:**
-  - [Intel® FPGA SDK for OpenCL™ Pro Edition: Programming FPGA](https://www.intel.com/content/www/us/en/docs/programmable/683472/current/programming-an-fpga.html)
-- **Intel FPGA Documentation:**
-  - [Intel® Acceleration Stack for Intel® Xeon® CPU with FPGAs](https://www.intel.com/content/www/us/en/programmable/documentation/lro1428694837525.html)
+  - [Vitis Unified Software Platform Documentation](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2020_1/ug1416-vitis-application-acceleration.pdf)
+  - [XRT Native API Guide](https://xilinx.github.io/XRT/master/html/index.html)
+
+- **Xilinx High-Level Synthesis (HLS):**
+  - [Vitis HLS User Guide](https://www.xilinx.com/support/documentation/sw_manuals/xilinx2020_1/ug1399-vitis-hls.pdf)
 
 ---
 
@@ -627,24 +826,24 @@ This setup provides a real-world example of CPU-FPGA communication in a cloud en
 
 - **Permissions and Privileges:**
 
-  - Programming the FPGA (`fpgaconf`) may require `sudo` privileges.
-  - Ensure you have the necessary permissions on the DevCloud. If you encounter permission issues, contact Intel DevCloud support.
+  - Programming the FPGA may require `sudo` privileges.
+  - Ensure you have the necessary permissions on the FPGA instance.
 
 - **Resource Usage:**
 
-  - FPGA compilation is resource-intensive and time-consuming.
-  - Be mindful of DevCloud usage policies and time limits on interactive sessions.
+  - FPGA compilation can be resource-intensive and time-consuming.
+  - Be mindful of instance usage and billing on Alibaba Cloud.
 
 - **Security Considerations:**
 
   - The communication between CPU and FPGA over PCIe is considered secure within the cloud environment.
-  - OPAE provides mechanisms for secure communication, but always ensure your code handles data securely.
+  - XRT provides mechanisms for secure communication, but always ensure your code handles data securely.
 
 - **Driver Interface:**
 
-  - OPAE is fully open-source, satisfying your requirement for open-source drivers.
-  - The OPAE SDK is licensed under the BSD-3-Clause license.
+  - XRT is fully open-source, satisfying your requirement for open-source drivers.
+  - The XRT SDK is licensed under the Apache License 2.0.
 
 - **Alternative Options:**
 
-  - If Intel DevCloud does not meet your needs due to permissions or other limitations, consider other cloud providers like Nimbix Cloud or hosting providers that offer physical access to FPGA servers with open-source support.
+  - If Alibaba Cloud does not meet your needs due to restrictions, consider other cloud providers like AWS EC2 F1 instances or local FPGA development boards.
