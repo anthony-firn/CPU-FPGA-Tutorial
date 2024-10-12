@@ -44,7 +44,7 @@
 
 3. **Fill Out the Registration Form:**
 
-   - Provide your email address or mobile number, and set a password.
+   - Provide an email address, and set a password.
 
 4. **Verify Your Email or Mobile Number:**
 
