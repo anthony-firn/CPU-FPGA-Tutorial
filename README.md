@@ -40,7 +40,7 @@
 
 2. **Click on "Business Account" or "Individual Account":**
 
-   - You'll be redirected to a registration form.
+   - Select account type and click next. You'll be redirected to a registration form.
 
 3. **Fill Out the Registration Form:**
 
