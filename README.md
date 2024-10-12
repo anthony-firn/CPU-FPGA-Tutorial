@@ -46,9 +46,9 @@
 
    - Provide an email address, and set a password.
 
-4. **Verify Your Email or Mobile Number:**
+4. **Verify Your Mobile Number:**
 
-   - You'll receive a verification code via email or SMS. Enter it to proceed.
+   - Enter your mobile phone number. You'll receive a verification code via email SMS. Enter it to proceed.
 
 5. **Complete Account Information:**
 
