@@ -54,9 +54,9 @@
 
    - Click on the verification link in the email.
 
-6. **Wait for Account Activation:**
+6. **Account Activation:**
 
-   - Intel may take some time to approve your account (usually within 24 hours). You'll receive a confirmation email once it's activated.
+   - Intel may take some time to approve your account (usually instantly verfied). You'll receive a confirmation email once it's activated. "Your Intel account has been created successfully"
 
 ---
 
@@ -67,7 +67,7 @@
 
 1. **Log In to the DevCloud:**
 
-   - Go to [Intel DevCloud login page](https://devcloud.intel.com/oneapi/login) and sign in with your credentials.
+   - Go to [Intel DevCloud login page](https://consumer.intel.com/intelcorpb2c.onmicrosoft.com/B2C_1A_UnifiedLogin_SISU_CML_SAML/generic/login) and sign in with your credentials.
 
 2. **Access via SSH:**
 
